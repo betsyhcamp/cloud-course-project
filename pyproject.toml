@@ -7,9 +7,9 @@ name = "cloud-course-project"
 description = "My package description"
 authors = [{ name = "<your name>", email = "some-email@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = { text = "MIT" }
-dependencies = ["boto3"]
+dependencies = ["boto3", "fastapi"]
 classifiers = ["Programming Language :: Python :: 3"]
 keywords = ["one", "two"]
 
@@ -22,9 +22,11 @@ version = { file = "version.txt" }
 
 # optional dependencies can be installed with square brackets, e.g. `pip install my-package[test,static-code-qa]`
 [project.optional-dependencies]
+api = ["uvicorn", "moto[server]"]
 package_manager = ["uv"]
 stubs = ["boto3-stubs[s3]"]
-test = ["pytest", "pytest-cov"]
+notebooks = ["jupyterlab", "ipykernel", "rich"]
+test = ["pytest", "pytest-cov", "moto[s3]"]
 release = ["build", "twine"]
 static-code-qa = [
     "pre-commit",
@@ -42,7 +44,7 @@ static-code-qa = [
 # - show enhanced autocompletion for stubs libraries
 # See .vscode/settings.json to see how VS Code is configured to use these tools
 dev = [
-    "cloud-course-project[package_manager,stubs,test,release,static-code-qa]",
+    "cloud-course-project[api,package_manager,stubs,notebooks,test,release,static-code-qa]",
 ]
 
 [build-system]

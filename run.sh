@@ -19,6 +19,28 @@ function install {
     python -m uv pip install --editable "$THIS_DIR/[dev]"
 }
 
+function run {
+    uvicorn files_api.main:APP --reload    
+}
+
+function run-mock {
+    
+    # Start moto.server in the background on localhost:5000
+    moto_server -p 5000 &
+
+    export AWS_ENDPOINT_URL="http://127.0.0.1:5000"
+    export AWS_SECRET_ACCESS_KEY="mock"
+    export AWS_ACCESS_KEY_ID="mock"
+
+    # create a bucket called "some-bucket" using the mocked aws server
+    aws s3 mb s3://some-bucket
+
+    uvicorn files_api.main:APP --reload  
+    
+    # Process may not terminate, so can use this command at the terminal
+    #lsof -i :5000 | grep LISTEN | awk '{print $2}' | xargs kill -9 
+}
+
 # run linting, formatting, and other static code quality tools
 function lint {
     pre-commit run --all-files
