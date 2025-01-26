@@ -25,7 +25,7 @@ version = { file = "version.txt" }
 api = ["uvicorn", "moto[server]"]
 package_manager = ["uv"]
 stubs = ["boto3-stubs[s3]"]
-notebooks = ["jupyterlab", "ipykernel", "rich"]
+notebooks = ["jupyterlab", "ipykernel", "rich", "jupytext"]
 test = ["pytest", "pytest-cov", "moto[s3]"]
 release = ["build", "twine"]
 static-code-qa = [
