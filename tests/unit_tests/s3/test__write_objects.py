@@ -1,5 +1,3 @@
-import os
-
 import boto3
 from moto import mock_aws
 
@@ -8,7 +6,7 @@ from tests.consts import TEST_BUCKET_NAME
 
 
 @mock_aws
-def test__upload_s3_object(mocked_aws: None):
+def test__upload_s3_object(mocked_aws):
 
     # upload a file to the bucket, given a particular content type
     object_key = "test.txt"

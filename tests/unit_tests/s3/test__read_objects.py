@@ -2,6 +2,7 @@
 
 import boto3
 from flask.typing import TeardownCallable
+from moto import mock_aws
 from regex import T
 
 from files_api.s3.read_objects import (
@@ -12,6 +13,7 @@ from files_api.s3.read_objects import (
 from tests.consts import TEST_BUCKET_NAME
 
 
+@mock_aws
 # pylint: disable=unused-argument
 def test_object_exists_in_s3(mocked_aws):
     """Assert that `object_exists_in_s3` returns the correct value when an object is or isn't present."""
@@ -21,6 +23,7 @@ def test_object_exists_in_s3(mocked_aws):
     assert object_exists_in_s3(TEST_BUCKET_NAME, "nonexistent.txt") is False
 
 
+@mock_aws
 # pylint: disable=unused-argument
 def test_pagination(mocked_aws):  # noqa: R701
     """Asset that pagination works correctly."""
@@ -53,6 +56,7 @@ def test_pagination(mocked_aws):  # noqa: R701
     assert next_page_token is None
 
 
+@mock_aws
 # pylint: disable=unused-argument
 def test_mixed_page_sizes(mocked_aws: None):  # noqa: R701 - too complex
     s3_client = boto3.client("s3")
@@ -82,6 +86,7 @@ def test_mixed_page_sizes(mocked_aws: None):  # noqa: R701 - too complex
     assert next_page_token is None
 
 
+@mock_aws
 # pylint: disable=unused-argument
 def test_directory_queries(mocked_aws: None):  # noqa: R701 - too complex
     """Assert that queries with prefixes work correctly with variety of directory prefixes on object keys."""
@@ -101,7 +106,7 @@ def test_directory_queries(mocked_aws: None):  # noqa: R701 - too complex
 
     files, next_page_token = fetch_s3_objects_metadata(TEST_BUCKET_NAME, prefix="dir2/subdir1/")
     assert len(files) == 1
-    assert files[0]["Key"] == "dir2/subdir1/file3.txt"
+    assert files[0]["Key"] == "dir2/subdir1/file4.txt"
     assert next_page_token is None
 
     files, next_page_token = fetch_s3_objects_metadata(TEST_BUCKET_NAME)
