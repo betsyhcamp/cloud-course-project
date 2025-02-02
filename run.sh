@@ -20,7 +20,7 @@ function install {
 }
 
 function run {
-    uvicorn files_api.main:APP --reload    
+    AWS_PROFILE=cloud-course uvicorn files_api.main:APP --reload    
 }
 
 function run-mock {
