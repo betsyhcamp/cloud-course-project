@@ -20,7 +20,7 @@ function install {
 }
 
 function run {
-    AWS_PROFILE=cloud-course uvicorn files_api.main:APP --reload    
+    AWS_PROFILE=cloud-course S3_BUCKET_NAME="some-bucket" uvicorn files_api.main:create_app --reload    
 }
 
 function run-mock {
@@ -31,11 +31,12 @@ function run-mock {
     export AWS_ENDPOINT_URL="http://127.0.0.1:5000"
     export AWS_SECRET_ACCESS_KEY="mock"
     export AWS_ACCESS_KEY_ID="mock"
+    export S3_BUCKET_NAME="some-bucket"
 
     # create a bucket called "some-bucket" using the mocked aws server
-    aws s3 mb s3://some-bucket
+    aws s3 mb "s3://$S3_BUCKET_NAME"
 
-    uvicorn files_api.main:APP --reload  
+    uvicorn files_api.main:create_app --reload  
     
     # Process may not terminate, so can use this command at the terminal
     #lsof -i :5000 | grep LISTEN | awk '{print $2}' | xargs kill -9 
