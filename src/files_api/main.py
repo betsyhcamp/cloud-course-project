@@ -1,3 +1,4 @@
+from ast import Str
 from datetime import datetime
 from typing import (
     List,
@@ -36,14 +37,35 @@ APP = FastAPI()
 ####################################
 
 
-# read (cRud)
+# create/update
+class PutFileResponse(BaseModel):
+    file_path: str
+    message: str
+
+
+# read
 class FileMetadata(BaseModel):
     file_path: str
     last_modified: datetime
     size_bytes: int
 
 
-# more pydantic models ...
+# read
+class GetFilesResponse(BaseModel):
+    files: List[FileMetadata]
+    next_page_token: Optional[str]
+
+
+# read
+class GetFilesQueryParams(BaseModel):
+    page_size: int = 10
+    directory: Optional[str] = ""
+    page_token: Optional[str] = None
+
+
+# delete
+class DeleteFileResponse(BaseModel):
+    message: str
 
 
 ##################
@@ -52,10 +74,18 @@ class FileMetadata(BaseModel):
 
 
 @APP.put("/files/{file_path:path}")
-async def upload_file(file_path: str, file: UploadFile, response: Response):
+async def upload_file(file_path: str, file: UploadFile, response: Response) -> PutFileResponse:
     """Upload a file."""
 
     file_contents: bytes = await file.read()
+
+    object_already_exists = object_exists_in_s3(bucket_name=S3_BUCKET_NAME, object_key=file_path)
+    if object_already_exists:
+        response_message = f"Existing file updated at path: /{file_path}"
+        response.status_code = status.HTTP_200_OK
+    else:
+        response_message = f"New file uploaded at path: /{file_path}"
+        response.status_code = status.HTTP_201_CREATED
 
     upload_s3_object(
         bucket_name=S3_BUCKET_NAME,
@@ -64,13 +94,40 @@ async def upload_file(file_path: str, file: UploadFile, response: Response):
         content_type=file.content_type,
     )
 
+    return PutFileResponse(
+        file_path=file_path,
+        message=response_message,
+    )
+
 
 @APP.get("/files")
 async def list_files(
-    query_params,
-):
+    query_params: GetFilesQueryParams = Depends(),  # noqa: B008
+) -> GetFilesResponse:
     """List files with pagination."""
-    ...
+
+    if query_params.page_token:
+        files, next_page_token = fetch_s3_objects_using_page_token(
+            bucket_name=S3_BUCKET_NAME,
+            continuation_token=query_params.page_token,
+            max_keys=query_params.page_size,
+        )
+    else:
+        files, next_page_token = fetch_s3_objects_metadata(
+            bucket_name=S3_BUCKET_NAME,
+            prefix=query_params.directory,
+            max_keys=query_params.page_size,
+        )
+    file_metadata_objs = [
+        FileMetadata(
+            file_path=f"{item['Key']}",
+            last_modified=item["LastModified"],
+            size_bytes=item["Size"],
+        )
+        for item in files
+    ]
+
+    return GetFilesResponse(files=file_metadata_objs, next_page_token=next_page_token if next_page_token else None)
 
 
 @APP.head("/files/{file_path:path}")
@@ -79,15 +136,27 @@ async def get_file_metadata(file_path: str, response: Response) -> Response:
 
     Note: by convention, HEAD requests MUST NOT return a body in the response.
     """
-    return
+    get_object_response = fetch_s3_object(
+        bucket_name=S3_BUCKET_NAME,
+        object_key=file_path,
+    )
+    response.headers["Content-Type"] = get_object_response["ContentType"]
+    response.headers["Content-Length"] = str(get_object_response["ContentLength"])
+    response.headers["Last-Modified"] = get_object_response["LastModified"].strftime("%a, %d %b %Y %H:%M:%S GMT")
+    response.status_code = status.HTTP_200_OK
+    return response
 
 
 @APP.get("/files/{file_path:path}")
 async def get_file(
     file_path: str,
-):
+) -> StreamingResponse:
     """Retrieve a file."""
-    ...
+    get_object_response = fetch_s3_object(bucket_name=S3_BUCKET_NAME, object_key=file_path)
+    return StreamingResponse(
+        content=get_object_response["Body"],
+        media_type=get_object_response["ContentType"],
+    )
 
 
 @APP.delete("/files/{file_path:path}")
@@ -98,7 +167,9 @@ async def delete_file(
     """Delete a file.
 
     NOTE: DELETE requests MUST NOT return a body in the response."""
-    return
+    delete_s3_object(bucket_name=S3_BUCKET_NAME, object_key=file_path)
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return response
 
 
 if __name__ == "__main__":
