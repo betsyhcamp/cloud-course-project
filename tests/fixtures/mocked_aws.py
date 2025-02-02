@@ -7,8 +7,9 @@ import boto3
 import pytest
 from moto import mock_aws
 
-# from files_api.main import S3_BUCKET_NAME as TEST_BUCKET_NAME
-from tests.consts import TEST_BUCKET_NAME
+from files_api.main import S3_BUCKET_NAME as TEST_BUCKET_NAME  # used for week2 happy path endpoints
+
+# from tests.consts import TEST_BUCKET_NAME #all s3 week1 (prior to happy path) tests worked with this
 
 
 # Set the environment variables to point away from AWS
