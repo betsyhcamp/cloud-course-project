@@ -1,7 +1,6 @@
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
     Request,
     Response,
     UploadFile,
@@ -18,7 +17,6 @@ from files_api.s3.read_objects import (
 )
 from files_api.s3.write_objects import upload_s3_object
 from files_api.schemas import (
-    DeleteFileResponse,
     FileMetadata,
     GetFilesQueryParams,
     GetFilesResponse,

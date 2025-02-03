@@ -482,7 +482,6 @@ print(result)
 import boto3
 from botocore.exceptions import ClientError
 
-
 try:
     from mypy_boto3_s3.type_defs import EmptyResponseMetadataTypeDef
 except ImportError:

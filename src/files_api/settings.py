@@ -1,5 +1,4 @@
 from pydantic import (
-    BaseModel,
     Field,
 )
 from pydantic_settings import (
