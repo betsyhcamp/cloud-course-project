@@ -1,10 +1,6 @@
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from files_api.main import create_app
-from files_api.settings import Settings
-from tests.consts import TEST_BUCKET_NAME
 
 # Constants for testing
 TEST_FILE_PATH = "test.txt"
