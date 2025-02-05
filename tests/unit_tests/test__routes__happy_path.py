@@ -12,15 +12,6 @@ TEST_FILE_CONTENT = b"Hello, world!"
 TEST_FILE_CONTENT_TYPE = "text/plain"
 
 
-# Fixture for FastAPI test client
-@pytest.fixture
-def client(mocked_aws) -> TestClient:  # pylint: disable=unused-argument
-    settings = Settings(s3_bucket_name=TEST_BUCKET_NAME)
-    app = create_app(settings=settings)
-    with TestClient(app) as client:
-        yield client
-
-
 def test_upload_file_successful_request(client: TestClient):
     # create a file
     # test_file_path = "some/nested/file.txt"
@@ -106,3 +97,6 @@ def test_delete_file(client: TestClient):
     # delete file
     response = client.delete(f"/files/{TEST_FILE_PATH}")
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = client.get(f"/files/{TEST_FILE_PATH}")
+    assert response.status_code == status.HTTP_404_NOT_FOUND

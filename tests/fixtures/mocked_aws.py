@@ -4,10 +4,13 @@ import os
 from typing import Generator
 
 import boto3
+import botocore
+import botocore.exceptions
 import pytest
 from moto import mock_aws
 
 from tests.consts import TEST_BUCKET_NAME  # all s3 week1 (prior to happy path) tests worked with this
+from tests.utils import delete_s3_bucket
 
 # from files_api.main import S3_BUCKET_NAME as TEST_BUCKET_NAME  # used for week2 happy path endpoints
 
@@ -41,8 +44,10 @@ def mocked_aws() -> Generator[None, None, None]:
         yield
 
         # 4. Clean up/Teardown by deleting the bucket
-        response = s3_client.list_objects_v2(Bucket=TEST_BUCKET_NAME)
-        for obj in response.get("Contents", []):
-            s3_client.delete_object(Bucket=TEST_BUCKET_NAME, Key=obj["Key"])
-
-        s3_client.delete_bucket(Bucket=TEST_BUCKET_NAME)
+        try:
+            delete_s3_bucket(bucket_name=TEST_BUCKET_NAME)
+        except botocore.exceptions.ClientError as err:
+            if err.response["Error"]["Code"] == "NoSuchBucket":
+                pass
+            else:
+                raise

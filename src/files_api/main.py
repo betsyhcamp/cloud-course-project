@@ -1,6 +1,6 @@
-
 from fastapi import FastAPI
 
+from files_api.errors import handle_broad_exceptions
 from files_api.routes import ROUTER
 from files_api.settings import Settings
 
@@ -11,6 +11,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI()
     app.state.settings = settings
     app.include_router(ROUTER)
+
+    app.middleware("http")(handle_broad_exceptions)
 
     return app
 

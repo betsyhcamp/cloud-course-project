@@ -1,6 +1,7 @@
 from fastapi import (
     APIRouter,
     Depends,
+    HTTPException,
     Request,
     Response,
     UploadFile,
@@ -102,6 +103,12 @@ async def get_file_metadata(request: Request, file_path: str, response: Response
     Note: by convention, HEAD requests MUST NOT return a body in the response.
     """
     settings: Settings = request.app.state.settings
+
+    # before trying to retrieve object metadata, make sure object exists
+    object_exists = object_exists_in_s3(bucket_name=settings.s3_bucket_name, object_key=file_path)
+    if not object_exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
     get_object_response = fetch_s3_object(
         bucket_name=settings.s3_bucket_name,
         object_key=file_path,
@@ -114,9 +121,26 @@ async def get_file_metadata(request: Request, file_path: str, response: Response
 
 
 @ROUTER.get("/files/{file_path:path}")
-async def get_file(request: Request, file_path: str) -> StreamingResponse:
+async def get_file(
+    request: Request,
+    file_path: str,
+) -> StreamingResponse:
     """Retrieve a file."""
+
+    # 1 -Business logic: Error that the user can fix
+    # error case: object does not exist in the bucket
+    # error case: invalid inputs
+
+    # 2 - Internal Server Error - errors that the user cannot fix
+    # error case: not authenticated/authorized to make calls to cloud service provider
+    # error case: the bucket does not exist
+
     settings: Settings = request.app.state.settings
+
+    object_exists = object_exists_in_s3(bucket_name=settings.s3_bucket_name, object_key=file_path)
+    if not object_exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
     get_object_response = fetch_s3_object(bucket_name=settings.s3_bucket_name, object_key=file_path)
 
     return StreamingResponse(
@@ -135,6 +159,13 @@ async def delete_file(
 
     NOTE: DELETE requests MUST NOT return a body in the response."""
     settings: Settings = request.app.state.settings
+
+    # before deleting object, make sure it exists
+    object_exists = object_exists_in_s3(bucket_name=settings.s3_bucket_name, object_key=file_path)
+    if not object_exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
+    # delete object, if it extists
     delete_s3_object(bucket_name=settings.s3_bucket_name, object_key=file_path)
     response.status_code = status.HTTP_204_NO_CONTENT
     return response
