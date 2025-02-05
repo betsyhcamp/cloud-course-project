@@ -1,9 +1,7 @@
 """Test cases for `s3.read_objects`."""
 
 import boto3
-from flask.typing import TeardownCallable
 from moto import mock_aws
-from regex import T
 
 from files_api.s3.read_objects import (
     fetch_s3_objects_metadata,

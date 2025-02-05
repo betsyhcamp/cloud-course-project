@@ -1,20 +1,11 @@
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from src.files_api.main import APP
 
 # Constants for testing
 TEST_FILE_PATH = "test.txt"
 TEST_FILE_CONTENT = b"Hello, world!"
 TEST_FILE_CONTENT_TYPE = "text/plain"
-
-
-# Fixture for FastAPI test client
-@pytest.fixture
-def client(mocked_aws) -> TestClient:  # pylint: disable=unused-argument
-    with TestClient(APP) as client:
-        yield client
 
 
 def test_upload_file_successful_request(client: TestClient):
@@ -102,3 +93,6 @@ def test_delete_file(client: TestClient):
     # delete file
     response = client.delete(f"/files/{TEST_FILE_PATH}")
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = client.get(f"/files/{TEST_FILE_PATH}")
+    assert response.status_code == status.HTTP_404_NOT_FOUND

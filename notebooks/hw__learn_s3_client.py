@@ -15,7 +15,7 @@
 # %% [markdown]
 # # AWS S3 Operations using Boto3
 #
-# In this notebook, we will perform several operations on AWS S3 using Boto3. 
+# In this notebook, we will perform several operations on AWS S3 using Boto3.
 #
 # These operations include:
 #
@@ -25,8 +25,8 @@
 # - reading the contents of an object
 # - deleting an object
 # - updating an object
-# - and handling errors for non-existent objects. 
-#   
+# - and handling errors for non-existent objects.
+#
 # We will also demonstrate how to write files with different prefixes and query files by prefix.
 #
 # ## For this notebook to run...
@@ -71,14 +71,15 @@
 # 4. Reload the VS Code window (`Ctrl/Cmd + Shift + P` > `Developer: Reload Window`)
 #
 
+import os
+from typing import Optional
+from uuid import uuid4  # randomly generated string
+
 # %%
 # Import necessary libraries
 import boto3
 from botocore.exceptions import ClientError
-from uuid import uuid4  # randomly generated string
 from rich import print  # pretty printing
-import os
-from typing import Optional
 
 try:
     from mypy_boto3_s3 import S3Client
@@ -259,7 +260,7 @@ for object_key, object_content in EXAMPLE_OBJECTS:
 
 # %%
 try:
-    from mypy_boto3_s3.type_defs import ListObjectsV2OutputTypeDef
+    pass
 except ImportError:
     print("boto3-stubs[s3] not installed")
 
@@ -334,7 +335,7 @@ print(response)
 # %% [markdown]
 # ## Exercise #4 - Try to read a non-existent object
 #
-# In this exercise, you will attempt to read a non-existent object from the S3 bucket. 
+# In this exercise, you will attempt to read a non-existent object from the S3 bucket.
 #
 # Catch, suppress, and print the `ClientError` exception that is raised when you try to read a non-existent object.
 
@@ -430,6 +431,7 @@ else:
 #
 # In this exercise, you will list objects in the S3 bucket by prefix.
 
+
 # %%
 def list_all_objects_in_bucket_by_prefix(bucket_name: str, prefix: str) -> list[str]:
     """
@@ -444,7 +446,7 @@ def list_all_objects_in_bucket_by_prefix(bucket_name: str, prefix: str) -> list[
         response = S3_CLIENT.list_objects_v2(Bucket=BUCKET_NAME)
         objects = [content["Key"] for content in response.get("Contents", []) if prefix in content["Key"]]
         return objects
-    except ClientError as err:
+    except ClientError:
         print(f"Failed to list object with given prefix {prefix}")
 
 
@@ -471,7 +473,7 @@ print(result)
 #
 # In this exercise, you will delete the S3 bucket. Your bucket may have objects in it. Does that matter?
 #
-# Write a function to delete your bucket. 
+# Write a function to delete your bucket.
 #
 # ***Be careful to point it at the right bucket using the right
 # AWS credentials--or you might delete the wrong bucket!***
@@ -479,8 +481,6 @@ print(result)
 # %%
 import boto3
 from botocore.exceptions import ClientError
-
-from files_api.main import S3_BUCKET_NAME
 
 try:
     from mypy_boto3_s3.type_defs import EmptyResponseMetadataTypeDef
@@ -533,7 +533,6 @@ print(response)
 
 # %%
 from pathlib import Path
-from typing import Generator
 
 
 def recursively_upload_dir_to_bucket(
@@ -601,6 +600,7 @@ print(objects)
 #
 # Ultimately, you have to copy each object one at a time, and delete the old object. For large buckets, e.g.
 # data lakes with millions of files, this is a slow process.
+
 
 # %%
 def rename_folder_in_bucket(

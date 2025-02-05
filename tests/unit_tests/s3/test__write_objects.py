@@ -7,7 +7,6 @@ from tests.consts import TEST_BUCKET_NAME
 
 @mock_aws
 def test__upload_s3_object(mocked_aws):
-
     # upload a file to the bucket, given a particular content type
     object_key = "test.txt"
     file_content = b"Hello, world 2!"
