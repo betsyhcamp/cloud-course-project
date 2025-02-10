@@ -26,7 +26,7 @@ api = ["uvicorn", "moto[server]"]
 package_manager = ["uv"]
 stubs = ["boto3-stubs[s3]"]
 notebooks = ["jupyterlab", "ipykernel", "rich", "jupytext"]
-test = ["pytest", "pytest-cov", "moto[s3]", "httpx"]
+test = ["pytest", "pytest-cov", "moto[s3]", "httpx", "python-multipart"]
 release = ["build", "twine"]
 static-code-qa = [
     "pre-commit",
