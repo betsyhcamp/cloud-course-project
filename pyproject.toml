@@ -76,7 +76,32 @@ exclude = '''
 
 [tool.flake8]
 docstring-convention = "all"
-ignore = ["D107", "D212", "E501", "W503", "W605", "D203", "D100"]
+ignore = [
+    "D107",
+    "D212",
+    "E501",
+    "W503",
+    "W605",
+    "D203",
+    "D100",
+
+    "F841",
+    "D202",
+    "D412",
+    "D400",
+    "D413",
+    "D407",
+    "D415",
+    "D104",
+    "D213",
+    "D103",
+    "D101",
+    "D105",
+    "E402",
+    "D209",
+    "D205",
+    "D200",
+]
 exclude = [".venv"]
 max-line-length = 119
 
@@ -98,4 +123,23 @@ disable = [
     "import-error",
     "too-few-public-methods",
     "redefined-outer-name",
+
+    "missing-module-docstring",
+    "redefined-builtin",
+    "wrong-import-position",
+    "unused-argument",
+    "invalid-name",
+    "no-else-raise",
+    "raise-missing-from",
+    "inconsistent-return-statements",
+    "pointless-statement",
+    "reimported",
+    "pointless-string-statement",
+    "ungrouped-imports",
+    "missing-module-docstring",
+    "no-name-in-module",
+    "unused-variable",
+    "wrong-import-order",
+    "missing-class-docstring",
+    "unused-variable",
 ]

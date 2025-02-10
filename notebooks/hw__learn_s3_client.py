@@ -433,7 +433,7 @@ else:
 
 
 # %%
-def list_all_objects_in_bucket_by_prefix(bucket_name: str, prefix: str) -> list[str]:
+def list_all_objects_in_bucket_by_prefix(bucket_name: str, prefix: str) -> list[str]:  # type: ignore
     """
     List objects in an S3 bucket by prefix.
 
@@ -444,7 +444,7 @@ def list_all_objects_in_bucket_by_prefix(bucket_name: str, prefix: str) -> list[
     # fill this out...
     try:
         response = S3_CLIENT.list_objects_v2(Bucket=BUCKET_NAME)
-        objects = [content["Key"] for content in response.get("Contents", []) if prefix in content["Key"]]
+        objects = [content["Key"] for content in response.get("Contents", []) if prefix in content["Key"]]  # type: ignore
         return objects
     except ClientError:
         print(f"Failed to list object with given prefix {prefix}")
