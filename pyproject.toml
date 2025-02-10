@@ -26,7 +26,7 @@ api = ["uvicorn", "moto[server]"]
 package_manager = ["uv"]
 stubs = ["boto3-stubs[s3]"]
 notebooks = ["jupyterlab", "ipykernel", "rich", "jupytext"]
-test = ["pytest", "pytest-cov", "moto[s3]"]
+test = ["pytest", "pytest-cov", "moto[s3]", "httpx", "python-multipart"]
 release = ["build", "twine"]
 static-code-qa = [
     "pre-commit",
@@ -37,6 +37,7 @@ static-code-qa = [
     "flake8-docstrings",
     "Flake8-pyproject",
     "radon",
+    "python-multipart",
 ]
 # Installing dev depenendencies in your virtual env makes it so that during development VS Code can
 # - surface linting errors
@@ -142,4 +143,12 @@ disable = [
     "wrong-import-order",
     "missing-class-docstring",
     "unused-variable",
+    "unsupported-binary-operation",
+    "unsubscriptable-object",
+
 ]
+
+
+[tool.mypy]
+disable_error_code = ["syntax", "misc"]
+ignore_missing_imports = true
