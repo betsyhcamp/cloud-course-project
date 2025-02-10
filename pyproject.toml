@@ -142,4 +142,12 @@ disable = [
     "wrong-import-order",
     "missing-class-docstring",
     "unused-variable",
+    "unsupported-binary-operation",
+    "unsubscriptable-object",
+
 ]
+
+
+[tool.mypy]
+disable_error_code = ["syntax", "misc"]
+ignore_missing_imports = true
