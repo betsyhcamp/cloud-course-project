@@ -7,6 +7,9 @@
 build:
 	bash run.sh build
 
+generate-client-library:
+	bash run.sh generate-client-library
+
 run:
 	bash run.sh run
 
