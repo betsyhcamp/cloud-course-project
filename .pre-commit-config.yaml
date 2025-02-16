@@ -114,6 +114,7 @@ repos:
             --ignore-missing-imports,
             --config-file=./pyproject.toml,
           ]
+        exclude: ^files-api-sdk/
 
   - repo: https://github.com/psf/black
     rev: 23.1.0
@@ -128,6 +129,7 @@ repos:
       - id: pylint
         args:
           - --rcfile=./pyproject.toml
+        exclude: ^files-api-sdk/
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
@@ -139,6 +141,7 @@ repos:
           - radon
           - flake8-docstrings
           - Flake8-pyproject
+        exclude: ^files-api-sdk/
 
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
