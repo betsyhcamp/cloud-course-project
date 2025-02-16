@@ -29,20 +29,26 @@ from files_api.settings import Settings
 # --- Routes --- #
 ##################
 
-ROUTER = APIRouter()
+ROUTER = APIRouter(tags=["Files"])
 
 
-@ROUTER.put("/files/{file_path:path}")
+@ROUTER.put(
+    "/files/{file_path:path}",
+    responses={
+        status.HTTP_200_OK: {"model": PutFileResponse},
+        status.HTTP_201_CREATED: {"model": PutFileResponse},
+    },
+)
 async def upload_file(
     request: Request,
     file_path: str,
-    file: UploadFile,
+    file_content: UploadFile,
     response: Response,
 ) -> PutFileResponse:
     """Upload a file."""
     settings: Settings = request.app.state.settings
 
-    file_contents: bytes = await file.read()
+    file_contents: bytes = await file_content.read()
 
     object_already_exists = object_exists_in_s3(bucket_name=settings.s3_bucket_name, object_key=file_path)
     if object_already_exists:
@@ -56,7 +62,7 @@ async def upload_file(
         bucket_name=settings.s3_bucket_name,
         object_key=file_path,
         file_content=file_contents,
-        content_type=file.content_type,
+        content_type=file_content.content_type,
     )
 
     return PutFileResponse(
@@ -96,7 +102,31 @@ async def list_files(
     return GetFilesResponse(files=file_metadata_objs, next_page_token=next_page_token if next_page_token else None)
 
 
-@ROUTER.head("/files/{file_path:path}")
+@ROUTER.head(
+    "/files/{file_path:path}",
+    responses={
+        status.HTTP_404_NOT_FOUND: {"description": "File not found for the given `file_path`."},
+        status.HTTP_200_OK: {
+            "headers": {
+                "Content-Type": {
+                    "description": "The MIME type",
+                    "example": "text/plain",
+                    "schema": {"type": "string"},
+                },
+                "Content-Length": {
+                    "description": "The size of the file in bytes.",
+                    "example": 64,
+                    "schema": {"type": "integer"},
+                },
+                "Last Modified": {
+                    "description": "The last date the file was modified.",
+                    "example": "Thu, 01 Jan2024 00:00:00 GMT",
+                    "schema": {"type": "string", "format": "date-time"},
+                },
+            },
+        },
+    },
+)
 async def get_file_metadata(request: Request, file_path: str, response: Response) -> Response:
     """Retrieve file metadata.
 
@@ -120,7 +150,22 @@ async def get_file_metadata(request: Request, file_path: str, response: Response
     return response
 
 
-@ROUTER.get("/files/{file_path:path}")
+@ROUTER.get(
+    "/files/{file_path:path}",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "File not found for the given `file_path`.",
+        },
+        status.HTTP_200_OK: {
+            "description": "The file content.",
+            "content": {
+                "application/octet-stream": {
+                    "schema": {"type": "string", "format": "binary"},
+                },
+            },
+        },
+    },
+)
 async def get_file(
     request: Request,
     file_path: str,
@@ -149,15 +194,27 @@ async def get_file(
     )
 
 
-@ROUTER.delete("/files/{file_path:path}")
+@ROUTER.delete(
+    "/files/{file_path:path}",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "File not found for the given `file_path`.",
+        },
+        status.HTTP_204_NO_CONTENT: {
+            "description": "File deleted successfully.",
+        },
+    },
+)
 async def delete_file(
     request: Request,
     file_path: str,
     response: Response,
 ) -> Response:
-    """Delete a file.
+    """
+    Delete a file.
 
-    NOTE: DELETE requests MUST NOT return a body in the response."""
+    NOTE: DELETE requests MUST NOT return a body in the response.
+    """
     settings: Settings = request.app.state.settings
 
     # before deleting object, make sure it exists
