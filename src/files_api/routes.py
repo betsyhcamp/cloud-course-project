@@ -48,26 +48,26 @@ async def upload_file(
     """Upload a file."""
     settings: Settings = request.app.state.settings
 
-    file_contents: bytes = await file_content.read()
+    file_bytes: bytes = await file_content.read()
 
     object_already_exists = object_exists_in_s3(bucket_name=settings.s3_bucket_name, object_key=file_path)
     if object_already_exists:
-        response_message = f"Existing file updated at path: /{file_path}"
+        message = f"Existing file updated at path: /{file_path}"
         response.status_code = status.HTTP_200_OK
     else:
-        response_message = f"New file uploaded at path: /{file_path}"
+        message = f"New file uploaded at path: /{file_path}"
         response.status_code = status.HTTP_201_CREATED
 
     upload_s3_object(
         bucket_name=settings.s3_bucket_name,
         object_key=file_path,
-        file_content=file_contents,
+        file_content=file_bytes,
         content_type=file_content.content_type,
     )
 
     return PutFileResponse(
         file_path=file_path,
-        message=response_message,
+        message=message,
     )
 
 
