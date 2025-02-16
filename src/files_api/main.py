@@ -23,8 +23,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         description=dedent(
             """
             ![Maintained by](https://img.shields.io/badge/Maintained_by-E_Camp-blue)
-            
-                
+
+
             [Project Github Repo](https://github.com/betsyhcamp/cloud-course-project)
             """
         ),
