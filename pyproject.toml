@@ -9,7 +9,14 @@ authors = [{ name = "<your name>", email = "some-email@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
-dependencies = ["boto3", "fastapi", "pydantic-settings"]
+dependencies = [
+    "boto3",
+    "fastapi",
+    "pydantic-settings",
+    "python-multipart",
+    "openai",
+    "httpx",
+]
 classifiers = ["Programming Language :: Python :: 3"]
 keywords = ["one", "two"]
 
@@ -26,7 +33,7 @@ api = ["uvicorn", "moto[server]"]
 package_manager = ["uv"]
 stubs = ["boto3-stubs[s3]"]
 notebooks = ["jupyterlab", "ipykernel", "rich", "jupytext"]
-test = ["pytest", "pytest-cov", "moto[s3]", "httpx", "python-multipart"]
+test = ["pytest", "pytest-cov", "moto[s3]"]
 release = ["build", "twine"]
 static-code-qa = [
     "pre-commit",
@@ -37,7 +44,6 @@ static-code-qa = [
     "flake8-docstrings",
     "Flake8-pyproject",
     "radon",
-    "python-multipart",
 ]
 # Installing dev depenendencies in your virtual env makes it so that during development VS Code can
 # - surface linting errors
