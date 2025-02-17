@@ -38,6 +38,10 @@ function run {
 
 function run-mock {
 
+    #####################################
+    # --- Mock AWS with Moto server --- #
+    #####################################
+
     # Start moto.server in the background on localhost:5000
     moto_server -p 5000 &
 
@@ -49,7 +53,14 @@ function run-mock {
     # create a bucket called "some-bucket" using the mocked aws server
     aws s3 mb "s3://$S3_BUCKET_NAME"
 
+    #######################################
+    # --- Mock OpenAI with mockserver --- #
+    #######################################
+    #OPENAI_MOCK_PORT=
+
     uvicorn files_api.main:create_app --reload
+
+
 
     # Process may not terminate, so can use this command at the terminal
     #lsof -i :5000 | grep LISTEN | awk '{print $2}' | xargs kill -9

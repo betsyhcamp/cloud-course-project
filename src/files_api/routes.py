@@ -1,3 +1,6 @@
+import mimetypes
+from typing import Annotated
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -9,6 +12,7 @@ from fastapi import (
 )
 from fastapi.responses import StreamingResponse
 
+from files_api.generate_files import get_text_chat_completion
 from files_api.s3.delete_objects import delete_s3_object
 from files_api.s3.read_objects import (
     fetch_s3_object,
@@ -19,9 +23,12 @@ from files_api.s3.read_objects import (
 from files_api.s3.write_objects import upload_s3_object
 from files_api.schemas import (
     FileMetadata,
+    GeneratedFileType,
+    GenerateFilesQueryParams,
     GetFilesQueryParams,
     GetFilesResponse,
     PutFileResponse,
+    PutGeneratedFileResponse,
 )
 from files_api.settings import Settings
 
@@ -30,6 +37,7 @@ from files_api.settings import Settings
 ##################
 
 FILES_ROUTER = APIRouter(tags=["Files"])
+GENERATED_FILES_ROUTER = APIRouter(tags=["Generated Files"])
 
 
 @FILES_ROUTER.put(
@@ -226,3 +234,44 @@ async def delete_file(
     delete_s3_object(bucket_name=settings.s3_bucket_name, object_key=file_path)
     response.status_code = status.HTTP_204_NO_CONTENT
     return response
+
+
+@GENERATED_FILES_ROUTER.post("/files/generated/{file_path:path}")
+async def generate_file_using_openai(
+    request: Request, response: Response, query_params: Annotated[GenerateFilesQueryParams, Depends()]
+) -> PutGeneratedFileResponse:
+    """
+    Generate a file using AI.
+
+    Note: The generated file type is prescribed by the the `file_path` extension. So the `file_path`
+    must have an extension matching one of the supported file types.
+    """
+    settings: Settings = request.app.state.settings
+    s3_bucket_name = settings.s3_bucket_name
+    content_type = None
+
+    # generate text
+    # query_params.file_type == GeneratedFileType.TEXT:
+    file_content = await get_text_chat_completion(prompt=query_params.prompt)
+    file_content_bytes: bytes = file_content.encode("utf-8")
+    content_type = "text/plain"
+    # else:
+    #    pass
+
+    # attempt to guess MIMEType from the extention of the the file path
+    content_type: str | None = content_type or mimetypes.guess_type(query_params.file_path[0])
+
+    # upload the generated file to S3
+    upload_s3_object(
+        bucket_name=s3_bucket_name,
+        object_key=query_params.file_path,
+        file_content=file_content_bytes,
+        content_type=content_type,
+    )
+
+    # return response
+    response.status_code = status.HTTP_201_CREATED
+    return PutGeneratedFileResponse(
+        file_path=query_params.file_path,
+        message=f"New {query_params.file_type.value} file generated and uploaded at path {query_params.file_path}",
+    )
