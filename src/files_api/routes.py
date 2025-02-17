@@ -29,10 +29,10 @@ from files_api.settings import Settings
 # --- Routes --- #
 ##################
 
-ROUTER = APIRouter(tags=["Files"])
+FILES_ROUTER = APIRouter(tags=["Files"])
 
 
-@ROUTER.put(
+@FILES_ROUTER.put(
     "/files/{file_path:path}",
     responses={
         status.HTTP_200_OK: {"model": PutFileResponse},
@@ -71,7 +71,7 @@ async def upload_file(
     )
 
 
-@ROUTER.get("/files")
+@FILES_ROUTER.get("/files")
 async def list_files(
     request: Request,
     query_params: GetFilesQueryParams = Depends(),  # noqa: B008
@@ -102,7 +102,7 @@ async def list_files(
     return GetFilesResponse(files=file_metadata_objs, next_page_token=next_page_token if next_page_token else None)
 
 
-@ROUTER.head(
+@FILES_ROUTER.head(
     "/files/{file_path:path}",
     responses={
         status.HTTP_404_NOT_FOUND: {"description": "File not found for the given `file_path`."},
@@ -150,7 +150,7 @@ async def get_file_metadata(request: Request, file_path: str, response: Response
     return response
 
 
-@ROUTER.get(
+@FILES_ROUTER.get(
     "/files/{file_path:path}",
     responses={
         status.HTTP_404_NOT_FOUND: {
@@ -194,7 +194,7 @@ async def get_file(
     )
 
 
-@ROUTER.delete(
+@FILES_ROUTER.delete(
     "/files/{file_path:path}",
     responses={
         status.HTTP_404_NOT_FOUND: {
