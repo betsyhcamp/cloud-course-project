@@ -1,6 +1,7 @@
 import mimetypes
 from typing import Annotated
 
+import httpx
 from fastapi import (
     APIRouter,
     Depends,
@@ -12,7 +13,11 @@ from fastapi import (
 )
 from fastapi.responses import StreamingResponse
 
-from files_api.generate_files import get_text_chat_completion
+from files_api.generate_files import (
+    generate_image,
+    generate_text_to_speech,
+    get_text_chat_completion,
+)
 from files_api.s3.delete_objects import delete_s3_object
 from files_api.s3.read_objects import (
     fetch_s3_object,
@@ -248,20 +253,31 @@ async def generate_file_using_openai(
     """
     settings: Settings = request.app.state.settings
     s3_bucket_name = settings.s3_bucket_name
+
     content_type = None
 
     # generate text
-    # query_params.file_type == GeneratedFileType.TEXT:
-    file_content = await get_text_chat_completion(prompt=query_params.prompt)
-    file_content_bytes: bytes = file_content.encode("utf-8")
-    content_type = "text/plain"
-    # else:
-    #    pass
+    if query_params.file_type == GeneratedFileType.TEXT:
+        file_content = await get_text_chat_completion(prompt=query_params.prompt)
+        file_content_bytes: bytes = file_content.encode("utf-8")
+        content_type = "text/plain"
+    # generate image
+    elif query_params.file_type == GeneratedFileType.IMAGE:
+        image_url = await generate_image(prompt=query_params.prompt)
+        async with httpx.AsyncClient() as client:
+            image_response = await client.get(image_url)
+        file_content_bytes = image_response.content
+    # generate audio
+    else:
+        response_audio_file_format = query_params.file_path.split(".")[-1]
+        file_content_bytes, content_type = await generate_text_to_speech(
+            prompt=query_params.prompt, response_format=response_audio_file_format
+        )
 
     # attempt to guess MIMEType from the extention of the the file path
-    content_type: str | None = content_type or mimetypes.guess_type(query_params.file_path[0])
+    content_type: str | None = content_type or mimetypes.guess_type(query_params.file_path)[0]
 
-    # upload the generated file to S3
+    # upload to s3 the generated file
     upload_s3_object(
         bucket_name=s3_bucket_name,
         object_key=query_params.file_path,
