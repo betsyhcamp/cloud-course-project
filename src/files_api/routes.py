@@ -241,7 +241,26 @@ async def delete_file(
     return response
 
 
-@GENERATED_FILES_ROUTER.post("/files/generated/{file_path:path}")
+@GENERATED_FILES_ROUTER.post(
+    "/files/generated/{file_path:path}",
+    status_code=status.HTTP_201_CREATED,
+    summary="AI Generated Files",
+    responses={
+        status.HTTP_201_CREATED: {
+            "model": PutGeneratedFileResponse,
+            "description": "Successful Response",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "text": PutGeneratedFileResponse.model_json_schema()["examples"][0],
+                        "image": PutGeneratedFileResponse.model_json_schema()["examples"][1],
+                        "text-to-speech": PutGeneratedFileResponse.model_json_schema()["examples"][2],
+                    },
+                },
+            },
+        },
+    },
+)
 async def generate_file_using_openai(
     request: Request, response: Response, query_params: Annotated[GenerateFilesQueryParams, Depends()]
 ) -> PutGeneratedFileResponse:
