@@ -56,14 +56,21 @@ function run-mock {
     #######################################
     # --- Mock OpenAI with mockserver --- #
     #######################################
-    #OPENAI_MOCK_PORT=
+    
+    OPENAI_MOCK_PORT=5002 python tests/mocks/openai_fastapi_mock_app.py &
+    OPENAI_MOCK_PID=$!
+    
+    # point OpenAI SDK to mock OpenAI server with mocked credentials via environment variables
+    export OPENAI_BASE_URL="http://localhost:${OPENAI_MOCK_PORT}"
+    export OPENAI_API_KEY="mocked_key"
 
     uvicorn files_api.main:create_app --reload
 
-
-
-    # Process may not terminate, so can use this command at the terminal
+    # Moto process may not terminate, so can use this command at the terminal 
     #lsof -i :5000 | grep LISTEN | awk '{print $2}' | xargs kill -9
+
+    # OpenAI mock server termination command at the terminal
+    #lsof -i :5002 | grep LISTEN | awk '{print $2}' | xargs kill -9
 }
 
 # run linting, formatting, and other static code quality tools
