@@ -99,11 +99,32 @@ def test_delete_file(client: TestClient):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
+def test_generate_text(client: TestClient):
+    """Test generating text using POST method."""
+    response = client.post(
+        url=f"/files/generated/{TEST_FILE_PATH}",
+        params={"prompt": "Test Prompt", "file_type": GeneratedFileType.TEXT.value},
+    )
+
+    response_data = response.json()
+    assert response.status_code == status.HTTP_201_CREATED
+    assert (
+        response_data["message"]
+        == f"New {GeneratedFileType.TEXT.value} file generated and uploaded at path: {TEST_FILE_PATH}"
+    )
+
+    # Get the generated file
+    response = client.get(f"/files/{TEST_FILE_PATH}")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.content == b"This is a mock response from the chat completion endpoint."
+    assert "text/plain" in response.headers["Content-Type"]
+
+
 def test_generate_image(client: TestClient):
     """Test generating image using POST method."""
     IMAGE_FILE_PATH = "some/nested/path/image.png"  # pylint: disable=invalid-name
     response = client.post(
-        url=f"/v1/files/generated/{IMAGE_FILE_PATH}",
+        url=f"/files/generated/{IMAGE_FILE_PATH}",
         params={"prompt": "Test Prompt", "file_type": GeneratedFileType.IMAGE.value},
     )
 
@@ -119,3 +140,22 @@ def test_generate_image(client: TestClient):
     assert response.status_code == status.HTTP_200_OK
     assert response.content is not None
     assert response.headers["Content-Type"] == "image/png"
+
+
+def test_generate_audio(client: TestClient):
+    """Test generating an auidio file using the POST method."""
+    audio_file_path = "some_audio.mp3"
+    response = client.post(
+        url=f"/files/generated/{audio_file_path}",
+        params={"prompt": "Test Prompt", "file_type": GeneratedFileType.AUDIO.value},
+    )
+
+    response_data = response.json()
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response_data["message"] == (f"New text-to-speech file generated. Uploaded at path: {audio_file_path}")
+
+    # Get the generated file
+    response = client.get(f"/files/{audio_file_path}")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.content is not None
+    assert response.headers["Content-Type"] == "audio/mpeg"
