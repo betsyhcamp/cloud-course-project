@@ -274,10 +274,12 @@ async def generate_file_using_openai(
     s3_bucket_name = settings.s3_bucket_name
 
     content_type = None
-
+    print("In generate_file_using_api")
     # generate text
     if query_params.file_type == GeneratedFileType.TEXT:
+        print("In TEXT if statement")
         file_content = await get_text_chat_completion(prompt=query_params.prompt)
+        print("after get_text_chat_completion")
         file_content_bytes: bytes = file_content.encode("utf-8")
         content_type = "text/plain"
     # generate image
