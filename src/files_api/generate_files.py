@@ -14,7 +14,6 @@ SYSTEM_PROMPT = "You are an autocompletion tool that produces text files given c
 
 async def get_text_chat_completion(prompt: str) -> str:
     """Generate a text chat completion from a given prompt."""
-    print("in get_text_completion function")
     client = AsyncOpenAI()
 
     # get chat completion
@@ -27,7 +26,6 @@ async def get_text_chat_completion(prompt: str) -> str:
         max_tokens=100,  # limit number tokens/credits used
         n=1,  # number responses returned
     )
-    print("In get_text_chat_completion, response:", response)
     return response.choices[0].message.content or ""
 
 

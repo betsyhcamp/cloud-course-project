@@ -108,7 +108,6 @@ def test_generate_text(client: TestClient):
 
     response_data = response.json()
     assert response.status_code == status.HTTP_201_CREATED
-    print(response_data["message"])
     assert (
         response_data["message"]
         == f"New {GeneratedFileType.TEXT.value} file generated and uploaded at path {TEST_FILE_PATH}"
@@ -131,7 +130,6 @@ def test_generate_image(client: TestClient):
 
     response_data = response.json()
     assert response.status_code == status.HTTP_201_CREATED
-    print(response_data)
     assert (
         response_data["message"]
         == f"New {GeneratedFileType.IMAGE.value} file generated and uploaded at path {IMAGE_FILE_PATH}"
@@ -153,7 +151,6 @@ def test_generate_audio(client: TestClient):
     )
 
     response_data = response.json()
-    print(response_data)
     assert response.status_code == status.HTTP_201_CREATED
     assert response_data["message"] == (f"New text-to-speech file generated and uploaded at path {audio_file_path}")
 
