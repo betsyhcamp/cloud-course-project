@@ -1,16 +1,15 @@
 """
 Define a FastAPI app that emulates two endpoints from OpenAI. These two end points provide
 text and image generation.
-    
+
 No matter the prompt, the same image or text are returned.
-    
+
 Access the server at `http://localhost:1080`.
 """
 
 import os
 from io import BytesIO
 from pathlib import Path
-from urllib import response
 
 import uvicorn
 from fastapi import FastAPI

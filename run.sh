@@ -58,10 +58,10 @@ function run-mock {
     # --- Mock OpenAI with mockserver --- #
     #######################################
     export OPENAI_MOCK_PORT=5002
-     
+
     python tests/mocks/openai_fastapi_mock_app.py &
     OPENAI_MOCK_PID=$!
-    
+
     # point OpenAI SDK to mock OpenAI server with mocked credentials via environment variables
     export OPENAI_BASE_URL="http://localhost:${OPENAI_MOCK_PORT}"
     export OPENAI_API_KEY="mocked_key"
