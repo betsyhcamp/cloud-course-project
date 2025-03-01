@@ -7,15 +7,15 @@ name = "cloud-course-project"
 description = "package description"
 authors = [{ name = "Elizabeth H. Camp", email = "betsy.h.camp@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = [
-    "boto3",
-    "fastapi",
-    "pydantic-settings",
-    "python-multipart",
-    "openai",
-    "httpx",
+    "boto3==1.36.1",
+    "fastapi==0.115.6",
+    "pydantic-settings==2.7.1",
+    "python-multipart==0.0.20",
+    "openai==1.63.0",
+    "httpx==0.28.1",
 ]
 classifiers = ["Programming Language :: Python :: 3"]
 keywords = ["one", "two"]
@@ -29,21 +29,27 @@ version = { file = "version.txt" }
 
 # optional dependencies can be installed with square brackets, e.g. `pip install my-package[test,static-code-qa]`
 [project.optional-dependencies]
-api = ["uvicorn", "moto[server]"]
-package_manager = ["uv"]
-stubs = ["boto3-stubs[s3]"]
-notebooks = ["jupyterlab", "ipykernel", "rich", "jupytext"]
-test = ["pytest", "pytest-cov", "moto[s3]", "fastapi", "uvicorn"]
-release = ["build", "twine"]
+api = ["uvicorn==0.34.0", "moto[server]==5.0.26"]
+package_manager = ["uv==0.5.18"]
+stubs = ["boto3-stubs[s3]==1.35.97"]
+notebooks = ["jupyterlab==4.3.4", "ipykernel==6.29.5", "rich", "jupytext"]
+test = [
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "moto[s3,server]==5.0.26",
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+]
+release = ["build==1.2.2.post1", "twine==6.0.1"]
 static-code-qa = [
-    "pre-commit",
-    "pylint",
-    "black",
-    "isort",
-    "flake8",
-    "flake8-docstrings",
-    "Flake8-pyproject",
-    "radon",
+    "pre-commit==4.0.1",
+    "pylint==3.3.3",
+    "black==24.10.0",
+    "isort==5.13.2",
+    "flake8==7.1.1",
+    "flake8-docstrings==1.7.0",
+    "flake8-pyproject==1.2.3",
+    "radon==6.0.1",
 ]
 
 # See .vscode/settings.json to see how VS Code is configured to use these tools
