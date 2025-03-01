@@ -4,12 +4,19 @@
 
 [project]
 name = "cloud-course-project"
-description = "My package description"
-authors = [{ name = "<your name>", email = "some-email@gmail.com" }]
+description = "package description"
+authors = [{ name = "Elizabeth H. Camp", email = "betsy.h.camp@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
-dependencies = ["boto3", "fastapi", "pydantic-settings"]
+dependencies = [
+    "boto3",
+    "fastapi",
+    "pydantic-settings",
+    "python-multipart",
+    "openai",
+    "httpx",
+]
 classifiers = ["Programming Language :: Python :: 3"]
 keywords = ["one", "two"]
 
@@ -26,7 +33,7 @@ api = ["uvicorn", "moto[server]"]
 package_manager = ["uv"]
 stubs = ["boto3-stubs[s3]"]
 notebooks = ["jupyterlab", "ipykernel", "rich", "jupytext"]
-test = ["pytest", "pytest-cov", "moto[s3]", "httpx", "python-multipart"]
+test = ["pytest", "pytest-cov", "moto[s3]"]
 release = ["build", "twine"]
 static-code-qa = [
     "pre-commit",
@@ -37,12 +44,8 @@ static-code-qa = [
     "flake8-docstrings",
     "Flake8-pyproject",
     "radon",
-    "python-multipart",
 ]
-# Installing dev depenendencies in your virtual env makes it so that during development VS Code can
-# - surface linting errors
-# - automatically apply formatting
-# - show enhanced autocompletion for stubs libraries
+
 # See .vscode/settings.json to see how VS Code is configured to use these tools
 dev = [
     "cloud-course-project[api,package_manager,stubs,notebooks,test,release,static-code-qa]",
@@ -102,6 +105,7 @@ ignore = [
     "D209",
     "D205",
     "D200",
+    "F401",
 ]
 exclude = [".venv"]
 max-line-length = 119
@@ -145,10 +149,12 @@ disable = [
     "unused-variable",
     "unsupported-binary-operation",
     "unsubscriptable-object",
+    "unused-import",
+    "consider-using-with",
 
 ]
 
 
 [tool.mypy]
-disable_error_code = ["syntax", "misc"]
+disable_error_code = ["syntax", "misc", "arg-type", "no-redef"]
 ignore_missing_imports = true

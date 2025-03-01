@@ -4,11 +4,19 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
 from files_api.errors import handle_broad_exceptions
-from files_api.routes import ROUTER
+from files_api.routes import (
+    FILES_ROUTER,
+    GENERATED_FILES_ROUTER,
+)
 from files_api.settings import Settings
 
 
 def custom_generate_unique_id(route: APIRoute):
+    """
+    Generate prettier `operationId`s in the OpenAPI schema.
+
+    These become the function names in generated client SDKs.
+    """
     return f"{route.tags[0]}--{route.name}"
 
 
@@ -33,7 +41,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     app.state.settings = settings
-    app.include_router(ROUTER)
+
+    app.include_router(FILES_ROUTER)
+    app.include_router(GENERATED_FILES_ROUTER)
 
     app.middleware("http")(handle_broad_exceptions)
 
